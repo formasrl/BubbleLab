@@ -1,22 +1,36 @@
-FROM node:20-slim AS builder
+# apps/bubble-studio (Vite) dashboard for Railway
+FROM node:20-slim
+
+# Enable pnpm
 RUN corepack enable
 WORKDIR /workspace
 
-
+# Monorepo files
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY packages ./packages/
-COPY apps/nodex-dashboard ./apps/nodex-dashboard/
+COPY apps/bubble-studio ./apps/bubble-studio/
 COPY tools ./tools/
 COPY .npmrc ./. 
 
-ARG VITE_API_ENDPOINT
-ARG VITE_CLERK_PUBLISHABLE_KEY
-ENV VITE_API_ENDPOINT=${VITE_API_ENDPOINT}
-ENV VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+# Install deps for the whole workspace
+RUN pnpm install --frozen-lockfile
 
+# IMPORTANT: Vite reads VITE_* at build time.
+# Railway will inject service variables during build AND runtime,
+# so we just declare them here so they're available before the build.
+# (You don't need ARG here; Railway will override these with your Variables.)
+ENV VITE_API_URL=""
+ENV VITE_DISABLE_AUTH=""
+ENV VITE_ANALYTICS_ENABLED=""
+
+# Build packages relied on by the app
 RUN cd packages/bubble-shared-schemas && pnpm run build
 RUN cd packages/bubble-core && pnpm run build
-RUN cd apps/nodex-dashboard && pnpm run build
 
-EXPOSE 5173
-CMD ["sh", "-c", "cd apps/nodex-dashboard && pnpm preview --port 5173 --host"]
+# Build the dashboard (Vite)
+RUN cd apps/bubble-studio && pnpm run build
+
+# Serve the built app with Vite preview, binding to Railway's $PORT
+ENV PORT=8080
+EXPOSE 8080
+CMD sh -c "cd apps/bubble-studio && pnpm preview --port ${PORT} --host 0.0.0.0"
