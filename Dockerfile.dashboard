@@ -15,15 +15,12 @@ COPY .npmrc ./.
 # Install deps for the whole workspace
 RUN pnpm install --frozen-lockfile
 
-# ✅ Accept build-time values from Railway and expose them to the build
-# (Vite reads VITE_* at build time)
-ARG VITE_API_URL
-ARG VITE_DISABLE_AUTH
-ARG VITE_ANALYTICS_ENABLED
-
-ENV VITE_API_URL=${VITE_API_URL}
-ENV VITE_DISABLE_AUTH=${VITE_DISABLE_AUTH}
-ENV VITE_ANALYTICS_ENABLED=${VITE_ANALYTICS_ENABLED}
+# ✅ Build-time env for Vite (baked into the bundle)
+# Safe to include: API URL + public Clerk key + flags
+ENV VITE_API_URL="https://bubblelab-production-72ff.up.railway.app"
+ENV VITE_DISABLE_AUTH="false"
+ENV VITE_ANALYTICS_ENABLED="false"
+ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_aG90LXB1bW10LDUuY2xlcmsuYWNjb3VudHMuZGV2JA"
 
 # Build packages relied on by the app
 RUN cd packages/bubble-shared-schemas && pnpm run build
