@@ -30,7 +30,7 @@ export const CLERK_APP_CONFIGS: Record<AppType, ClerkAppConfig> = {
     fallbackSecretKeyEnvVar: 'CLERK_SECRET_KEY', // Backward compatibility
     issuerIds: {
       development: [
-        'https://quality-lemming-11.clerk.accounts.dev', // Add your actual dev issuer
+        'https://quality-lemming-11.clerk.accounts.dev', // example dev issuer (adjust if you actually use Nodex)
       ],
       production: ['https://clerk.nodex.bubblelab.ai'],
     },
@@ -41,7 +41,7 @@ export const CLERK_APP_CONFIGS: Record<AppType, ClerkAppConfig> = {
     secretKeyEnvVar: 'CLERK_SECRET_KEY_BUBBLEPARSE',
     issuerIds: {
       development: [
-        'https://evolving-corgi-51.clerk.accounts.dev', // Add your actual dev issuer
+        'https://evolving-corgi-51.clerk.accounts.dev', // example dev issuer (adjust if you actually use BubbleParse)
       ],
       production: ['https://clerk.doc.bubblelab.ai'],
     },
@@ -52,7 +52,8 @@ export const CLERK_APP_CONFIGS: Record<AppType, ClerkAppConfig> = {
     secretKeyEnvVar: 'CLERK_SECRET_KEY_BUBBLELAB',
     issuerIds: {
       development: [
-        'https://lucky-fowl-65.clerk.accounts.dev', // Add your actual dev issuer
+        'https://lucky-fowl-65.clerk.accounts.dev',      // example from repo
+        'https://hot-puma-45.clerk.accounts.dev',        // ← YOUR Clerk dev issuer
       ],
       production: ['https://clerk.bubblelab.ai'],
     },
@@ -64,22 +65,16 @@ export const CLERK_APP_CONFIGS: Record<AppType, ClerkAppConfig> = {
  */
 export const getSecretKeyForApp = (appType: AppType): string | null => {
   const config = CLERK_APP_CONFIGS[appType];
-  if (!config) {
-    return null;
-  }
+  if (!config) return null;
 
   // Try primary secret key first
   const primaryKey = process.env[config.secretKeyEnvVar];
-  if (primaryKey) {
-    return primaryKey;
-  }
+  if (primaryKey) return primaryKey;
 
   // Try fallback if available
   if (config.fallbackSecretKeyEnvVar) {
     const fallbackKey = process.env[config.fallbackSecretKeyEnvVar];
-    if (fallbackKey) {
-      return fallbackKey;
-    }
+    if (fallbackKey) return fallbackKey;
   }
 
   return null;
@@ -87,16 +82,16 @@ export const getSecretKeyForApp = (appType: AppType): string | null => {
 
 /**
  * Detect app type from JWT token issuer
- * Uses centralized issuer ID configuration
+ * Now checks BOTH development and production issuer lists,
+ * so it works regardless of BUBBLE_ENV (dev/prod).
  */
 export const detectAppTypeFromIssuer = (issuer: string): AppType | null => {
-  // Determine environment (you might want to make this more sophisticated)
-  const environment = env.isDev ? 'development' : 'production';
-  // Check each app's issuer IDs
   for (const [appType, config] of Object.entries(CLERK_APP_CONFIGS)) {
-    const issuerIds = config.issuerIds[environment];
-    // Check if the issuer matches any of the configured issuer IDs
-    if (issuerIds.some((issuerId) => issuer === issuerId)) {
+    const allIssuerIds = [
+      ...config.issuerIds.development,
+      ...config.issuerIds.production,
+    ];
+    if (allIssuerIds.includes(issuer)) {
       return appType as AppType;
     }
   }
