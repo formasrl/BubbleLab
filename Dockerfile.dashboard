@@ -20,7 +20,7 @@ RUN pnpm install --frozen-lockfile
 ENV VITE_API_URL="https://bubblelab-production-72ff.up.railway.app"
 ENV VITE_DISABLE_AUTH="false"
 ENV VITE_ANALYTICS_ENABLED="false"
-ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_aG90LXB1bW10LDUuY2xlcmsuYWNjb3VudHMuZGV2JA"
+ENV VITE_CLERK_PUBLISHABLE_KEY="pk_test_aG90LXB1bWEtNDUuY2xlcmsuYWNjb3VudHMuZGV2JA"
 
 # Build packages relied on by the app
 RUN cd packages/bubble-shared-schemas && pnpm run build
