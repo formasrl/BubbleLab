@@ -3,23 +3,16 @@
   "environments": {
     "production": {
       "services": {
-        "landing": {
-          "build": {
-            "builder": "DOCKERFILE",
-            "dockerfilePath": "landing.Dockerfile"
-          }
-        },
-
-        "dashboard": {
-          "build": {
-            "builder": "DOCKERFILE",
-            "dockerfilePath": "Dockerfile.dashboard"
-          }
-        },
         "api": {
           "build": {
             "builder": "DOCKERFILE",
             "dockerfilePath": "Dockerfile.api"
+          }
+        },
+        "studio": {
+          "build": {
+            "builder": "DOCKERFILE",
+            "dockerfilePath": "deployment/Dockerfile.bubble-studio"
           }
         }
       }
