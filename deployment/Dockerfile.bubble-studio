@@ -1,4 +1,9 @@
 FROM node:20-slim AS builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python3 make g++ pkg-config \
+  libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev \
+  git ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 WORKDIR /workspace
 
