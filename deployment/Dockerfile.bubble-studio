@@ -10,7 +10,7 @@ COPY tools ./tools/
 COPY .npmrc ./. 
 
 # Install all dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --config.minimumReleaseAge=0 --frozen-lockfile
 
 ARG VITE_API_URL
 ARG VITE_CLERK_PUBLISHABLE_KEY
